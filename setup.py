@@ -8,13 +8,19 @@ project_url += "lepisma/dime"
 
 setup(
     name="dime",
-    version="0.1.0",
+    version="0.1.1",
     description="Virtual Desktop time tracker",
     long_description=readme,
     author="Abhinav Tushar",
     author_email="abhinav.tushar.vs@gmail.com",
     url=project_url,
-    install_requires=["hy"],
+    install_requires=[
+        "hy==0.12.1",
+        "pyfiglet",
+        "tabulate",
+        "pyyaml",
+        "docopt"
+    ],
     scripts=["dime"],
     classifiers=(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

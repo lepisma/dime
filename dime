@@ -12,18 +12,18 @@
 
 ;; Write data back to store
 (defn write-data-store [store data-file]
-  (with [[f (open data-file "w")]]
+  (with [f (open data-file "w")]
         (dump store f)))
 
 ;; Return data store; create if not exists
 (defn read-data-store [data-file]
   (if (path.isfile data-file)
-    (with [[f (open data-file "r")]]
+    (with [f (open data-file "r")]
           (load f))
     (do
      (print "data file not found, creating...")
-     (let [[store {}]
-           [names (get-desktop-names (get-desktop-data))]]
+     (let [store {}
+           names (get-desktop-names (get-desktop-data))]
        (for [name names]
          (assoc store name [[]]))
        (write-data-store store data-file)
@@ -31,7 +31,7 @@
 
 ;; Check if desktop is active
 (defn desktop-active? [desktop]
-  (let [[state (second (.split desktop))]]
+  (let [state (second (.split desktop))]
     (= state "*")))
 
 ;; Get all desktop data
@@ -46,18 +46,18 @@
 
 ;; Get active desktop name
 (defn get-active-desktop-name [desktop-data]
-  (let [[n (.index (list-comp
-                    (desktop-active? desktop)
-                    [desktop desktop-data]) True)]]
+  (let [n (.index (list-comp
+                   (desktop-active? desktop)
+                   [desktop desktop-data]) True)]
     (nth (get-desktop-names desktop-data) n)))
 
 ;; Log time for given dektop
 (defn log-time [store current-desktop-name data-file]
-  (let [[current-time (int (time))]
-        [all-sessions (get store current-desktop-name)]
-        [last-time (try
-                    (last (last all-sessions))
-                    (catch [e IndexError] 0))]]
+  (let [current-time (int (time))
+        all-sessions (get store current-desktop-name)
+        last-time (try
+                   (last (last all-sessions))
+                   (except [e IndexError] 0))]
 
     (if (= 0 last-time)
       (.pop all-sessions))
@@ -72,9 +72,9 @@
 
 ;; Start logging loop
 (defn start-logging-loop [data-file]
-  (let [[store (read-data-store data-file)]]
+  (let [store (read-data-store data-file)]
     (while True
-      (let [[desktop-data (get-desktop-data)]]
+      (let [desktop-data (get-desktop-data)]
         (log-time store
                   (get-active-desktop-name desktop-data)
                   data-file))
@@ -82,17 +82,17 @@
 
 ;; Find time spent in a list of sessions starting with given timestamp
 (defn time-spent [sessions from]
-  (let [[all []]]
+  (let [all []]
     (for [session sessions]
       (if (!= 0 (len session))
-        (let [[low (first session)]
-              [high (last session)]]
+        (let [low (first session)
+              high (last session)]
           (.append all (- high (min high (max low from)))))))
     (str (timedelta :seconds (sum all)))))
 
 ;; Return datetime at 00:00 for -nth day
 (defn get-past-n-day [n]
-  (let [[past-date (- (datetime.today) (timedelta :days n))]]
+  (let [past-date (- (datetime.today) (timedelta :days n))]
     (.replace past-date
               :hour 0
               :minute 0
@@ -101,14 +101,14 @@
 
 ;; Return report for last n days. [oldest record, report]
 (defn report [from-day data-file]
-  (let [[from-midnight-timestamp (.timestamp from-day)]
-        [store (read-data-store data-file)]
-        [desktops (get-desktop-names (get-desktop-data))]
-        [results []]
-        [oldest []]]
+  (let [from-midnight-timestamp (.timestamp from-day)
+        store (read-data-store data-file)
+        desktops (get-desktop-names (get-desktop-data))
+        results []
+        oldest []]
     (for [desktop desktops]
-      (let [[sessions (get store desktop)]
-            [first-session (first sessions)]]
+      (let [sessions (get store desktop)
+            first-session (first sessions)]
         (if (!= 0 first-session)
           (.append oldest (first first-session)))
         (.append results
@@ -139,9 +139,9 @@ Options:
     (start-logging-loop DATA-FILE)
     (if (get arguments "report")
       (do
-       (let [[n (int (get arguments "<last-n-days>"))]
-             [from-day (get-past-n-day n)]
-             [reported-data (report from-day DATA-FILE)]]
+       (let [n (int (get arguments "<last-n-days>"))
+             from-day (get-past-n-day n)
+             reported-data (report from-day DATA-FILE)]
          (print (figlet_format "dime"
                                :font "rectangles"))
          (print (+ "Asked for last "
