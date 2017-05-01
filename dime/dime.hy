@@ -1,5 +1,3 @@
-#!/usr/bin/env hy
-
 (import [subprocess [check_output]])
 (import [time [sleep time]])
 (import [os [path]])
@@ -132,8 +130,8 @@ Options:
   -h --help     Show this screen.
   -v --version  Show version.")
 
-(defmain [&rest args]
-  (setv arguments (docopt DOC :version "0.0.0"))
+(defn main []
+  (setv arguments (docopt DOC :version "0.1.2"))
 
   (if (get arguments "start")
     (start-logging-loop DATA-FILE)
